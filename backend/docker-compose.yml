@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  crawler:
+    build:
+      context: ./crawler
+      dockerfile: ./Dockerfile
+    image: web-crawler
+    container_name: crawler
+    depends_on:
+      - crawlerdb
+      - indexer
+    volumes:
+      - ./crawler:/app:z
+    environment:
+      WAIT_HOSTS: crawlerdb:5432
+    env_file: ./crawler/.env
+  crawlerdb:
+    image: "postgres:14.1"
+    env_file: ./crawler/.env
+    # environment:
+      # POSTGRES_HOST: db
+      # POSTGRES_PORT: 5432
+      # POSTGRES_DB: pages
+      # POSTGRES_USER: debug
+      # POSTGRES_PASSWORD: debug
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./crawler_data:/var/lib/postgresql/data
+  indexer:
+    build:
+      context: ./indexer
+      dockerfile: ./Dockerfile
+    image: web-indexer
+    container_name: indexer
+    depends_on:
+      - indexerdb
+    volumes:
+      - ./indexer:/app:z
+    environment:
+      WAIT_HOSTS: indexerdb:5433
+      FLASK_APP : main.py
+    env_file: ./indexer/.env
+    ports:
+      - "8001:8001"
+  indexerdb:
+    image: "postgres:14.1"
+    env_file: ./indexer/.env
+    # environment:
+    #   POSTGRES_HOST: db
+    #   POSTGRES_PORT: 5433
+    #   POSTGRES_DB: index
+    #   POSTGRES_USER: debug
+    #   POSTGRES_PASSWORD: debug
+    ports:
+      - "5433:5433"
+    volumes:
+      - ./indexer_data:/var/lib/postgresql/data
+    command: -p 5433
+

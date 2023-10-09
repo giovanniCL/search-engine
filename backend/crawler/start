@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/wait
+python web_crawler.py
