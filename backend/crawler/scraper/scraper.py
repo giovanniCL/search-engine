@@ -4,7 +4,7 @@ from utils.utils import pre_process_text
 class Scraper:
     def __init__(self, response):
         self.url = response.url if not response.history else response.history[0].url
-        self.soup  = BeautifulSoup(response.content, 'html.parser')
+        self.soup = BeautifulSoup(response.content, 'html.parser')
         self.lang_code = self.soup.html.get("lang")
         self.title = "" if not self.soup.title else self.soup.title.string
         self.description_meta = self.soup.find("meta", property="og:description")
