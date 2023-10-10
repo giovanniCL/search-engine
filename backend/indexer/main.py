@@ -20,7 +20,7 @@ class Page(Resource):
         frequencies = get_word_frequencies(args["text"])
         for word, frequency in frequencies.items():
             score = frequency
-            if word in args["title"].lower(): score += 100
+            if args["title"] and word in args["title"].lower(): score += 100
             stmt = insert(WordXPage).values(
                 word=word, page=args["id"],
                 score=score

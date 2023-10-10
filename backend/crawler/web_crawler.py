@@ -1,52 +1,44 @@
-from bs4 import BeautifulSoup
 import requests
-from db import Page, engine
-from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import Session
-from utils import pre_process_text
-import os
+class WebCrawler:
+    def __init__(self, seed_pages, scraper_class, db_client, indexer_client, n_iters=None, languages=None):
+        self.queue = seed_pages
+        self.visited = set(self.queue)
+        self.scraper_class = scraper_class
+        self.db_client = db_client
+        self.indexer_client = indexer_client
+        self.n_iters = n_iters if n_iters is not None else float("inf")
+        self.languages = languages if languages is not None else ["en", "es"]
 
-INDEXER_URL = os.environ.get("INDEXER_URL")
+    def crawl(self):
+        count = 0
+        while count < self.n_iters and len(self.queue) > 0:
+            site_url = self.queue.pop()
+            try:
+                result = requests.get(site_url)
+            except requests.exceptions.InvalidSchema:
+                continue
+            except:
+                continue
+            if result.status_code // 100 != 2: continue
+            scraper = self.scraper_class(result)
+            if not self.validate_language(scraper.lang_code): continue
+            parsed_site = scraper.to_dict()
+            inserted_id = self.db_client.create_or_update_page(parsed_site)
+            self.indexer_client.index_page(inserted_id, scraper)
+            for link in scraper.get_urls():
+                if self.validate_url(link):
+                    self.queue.append(link)
+                    self.visited.add(link)    
+            count += 1
 
-queue = ["https://www.reddit.com/"]
-visited = set("https://www.reddit.com/")
-count = 0
-while count < 1000 and len(queue) > 0:
-    site_url = queue.pop()
-    try:
-        result = requests.get(site_url)
-    except requests.exceptions.InvalidSchema:
-        continue
-    except:
-        continue
-    if result.status_code // 100 != 2: continue
-    content = result.content
-    soup = BeautifulSoup(content, 'html.parser')
-    lang_code = soup.html.get("lang")
-    if lang_code is None or not (lang_code.startswith("en") or lang_code.startswith("es")): continue
-    title = soup.title
-    description = soup.find("meta", property="og:description")
-    text = soup.get_text()
-    first_p = soup.find('p')
-    first_p = None if not first_p else first_p.text
-    description = first_p if not description else description.content
-    parsed_site = {
-        "url": site_url, 
-        "title": None if not title else pre_process_text(title.string, max_len=280),
-        "description": pre_process_text(description, max_len=280)
-    }
-    stmt = insert(Page).values(**parsed_site).on_conflict_do_update(index_elements=["url"], set_=parsed_site)
-    with Session(engine) as session:
-        result = session.execute(stmt)
-        session.commit()
-        inserted_id = result.inserted_primary_key[0]
-    for anchor in soup.find_all('a'):
-        link = anchor.get('href')
-        if link and link not in visited and link.startswith("http") and len(link) <= 100:
-            queue.append(link)
-            visited.add(link)
-    try:
-        response = requests.post(INDEXER_URL, json={"id": inserted_id, "title": parsed_site["title"], "text": text})
-    except Exception as e:
-        print(e)
-    count += 1
+    def validate_language(self, lang_code):
+        if lang_code is None: return False
+        for language in self.languages:
+            if lang_code.startswith(language): return True
+        return False
+    
+    def validate_url(self, url):
+        if url is None: return False
+        if url in self.visited: return False
+        if not url.startswith("http"): return False
+        return len(url) <= 100

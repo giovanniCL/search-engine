@@ -26,8 +26,6 @@ class WordXPage(Base):
     page = mapped_column(Integer(), primary_key=True)
     score = mapped_column(Integer())
 
-# engine = create_engine('postgresql+psycopg2://debug:debug\
-# @crawlerdb/pages', echo=True)
 engine = create_engine(connection_string, echo=True)
 
 Base.metadata.create_all(engine)
