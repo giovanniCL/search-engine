@@ -1,7 +1,24 @@
-from sqlalchemy import String, Integer, create_engine
-from sqlalchemy.orm import mapped_column, DeclarativeBase
+import os
+from sqlalchemy import create_engine
 
-indexer_engine = create_engine('postgresql+psycopg2://debug:debug\
-@indexerdb:5433/index', echo=True)
-crawler_engine = create_engine('postgresql+psycopg2://debug:debug\
-@crawlerdb/pages', echo=True)
+CRAWLER_DB_HOST = os.environ.get("CRAWLER_DB_HOST")
+CRAWLER_DB_PORT = os.environ.get("CRAWLER_DB_PORT")
+CRAWLER_DB_NAME = os.environ.get("CRAWLER_DB_NAME")
+CRAWLER_DB_USER = os.environ.get("CRAWLER_DB_USER")
+CRAWLER_DB_PASSWORD = os.environ.get("CRAWLER_DB_PASSWORD")
+
+INDEXER_DB_HOST = os.environ.get("INDEXER_DB_HOST")
+INDEXER_DB_PORT = os.environ.get("INDEXER_DB_PORT")
+INDEXER_DB_NAME = os.environ.get("INDEXER_DB_NAME")
+INDEXER_DB_USER = os.environ.get("INDEXER_DB_USER")
+INDEXER_DB_PASSWORD = os.environ.get("INDEXER_DB_PASSWORD")
+
+crawler_db_connection_string = \
+    f"postgresql+psycopg2://{CRAWLER_DB_USER}:{CRAWLER_DB_PASSWORD}@{CRAWLER_DB_HOST}:{CRAWLER_DB_PORT}/{CRAWLER_DB_NAME}"
+
+indexer_db_connection_string = \
+    f"postgresql+psycopg2://{INDEXER_DB_USER}:{INDEXER_DB_PASSWORD}@{INDEXER_DB_HOST}:{INDEXER_DB_PORT}/{INDEXER_DB_NAME}"
+
+
+indexer_engine = create_engine(indexer_db_connection_string, echo=True)
+crawler_engine = create_engine(crawler_db_connection_string, echo=True)
