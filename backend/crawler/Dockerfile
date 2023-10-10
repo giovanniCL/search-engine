@@ -6,16 +6,14 @@ RUN pip install -r ./requirements.txt
 
 WORKDIR /app
 
-COPY ./web_crawler.py /web_crawler
+COPY . /app
 
-COPY ./db.py /db.py
+RUN sed -i 's/\r$//g' /app/start
 
-COPY ./start /start
-RUN sed -i 's/\r$//g' /start
-RUN chmod +x /start
+RUN chmod +x /app/start
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 
 RUN chmod +x /wait
 
-CMD ["/start"]
+CMD ["/app/start"]
