@@ -6,19 +6,13 @@ RUN pip install -r ./requirements.txt
 
 WORKDIR /app
 
-COPY ./db.py /db.py
+COPY . /app
 
-COPY ./frequencies.py /frequencies.py
-
-COPY ./main.py /main.py
-
-COPY ./start /start
-
-RUN sed -i 's/\r$//g' /start
-RUN chmod +x /start
+RUN sed -i 's/\r$//g' /app/start
+RUN chmod +x /app/start
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 
 RUN chmod +x /wait
 
-CMD ["/start"]
+CMD ["/app/start"]

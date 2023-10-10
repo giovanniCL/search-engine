@@ -3,24 +3,14 @@ version: '3'
 services:
   crawlerdb:
     image: "postgres:14.1"
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: pages
-      POSTGRES_USER: debug
-      POSTGRES_PASSWORD: debug
+    env_file: ./crawler_db.env
     ports:
       - "5432:5432"
     volumes:
       - ./crawler_data:/var/lib/postgresql/data
   indexerdb:
     image: "postgres:14.1"
-    environment:
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5433
-      POSTGRES_DB: index
-      POSTGRES_USER: debug
-      POSTGRES_PASSWORD: debug
+    env_file: ./indexer_db.env
     ports:
       - "5433:5433"
     volumes:
@@ -35,6 +25,7 @@ services:
     depends_on:
       - crawlerdb
       - indexerdb
+    env_file: ./server/.env
     environment:
       FLASK_APP: main.py
     volumes:
