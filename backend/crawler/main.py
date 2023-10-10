@@ -1,9 +1,9 @@
 import os
-from db import Page, engine
-from scraper import Scraper
-from sqlalchemy_client import SqlAlchemyClient
-from indexer_client import IndexerClient
-from web_crawler import WebCrawler
+from db.db import Page, engine
+from db.sqlalchemy_client import SqlAlchemyClient
+from scraper.scraper import Scraper
+from indexer_client.indexer_client import IndexerClient
+from crawler.web_crawler import WebCrawler
 
 INDEXER_URL = os.environ.get("INDEXER_URL")
 

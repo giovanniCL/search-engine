@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from utils import pre_process_text
+from utils.utils import pre_process_text
 
 class Scraper:
     def __init__(self, response):
