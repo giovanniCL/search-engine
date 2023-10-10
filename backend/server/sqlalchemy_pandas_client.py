@@ -23,10 +23,10 @@ class SqlAlchemyPandasClient:
         page_ids_str = str(page_ids[0])
         for id in page_ids:
             page_ids_str += f", {id}"
-            query = f"SELECT title, description, url FROM page WHERE id IN ({page_ids_str})"
-            result_df = pd.read_sql_query(query, self.crawler_engine)
-            results = []
-            for title, description, url in zip(result_df["title"].values, result_df["description"].values, result_df["url"].values):
-                results.append({"title": title, "description": description, "url": url})
-                
+        query = f"SELECT title, description, url FROM page WHERE id IN ({page_ids_str})"
+        result_df = pd.read_sql_query(query, self.crawler_engine)
+        results = []
+        for title, description, url in zip(result_df["title"].values, result_df["description"].values, result_df["url"].values):
+            results.append({"title": title, "description": description, "url": url})
+
         return results
