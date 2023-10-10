@@ -7,11 +7,11 @@ class Scraper:
         self.soup = BeautifulSoup(response.content, 'html.parser')
         self.lang_code = self.soup.html.get("lang")
         self.title = "" if not self.soup.title else self.soup.title.string
-        self.description_meta = self.soup.find("meta", property="og:description")
+        self.description_meta = self.soup.find("meta", {"name":"description"})
         self.text = self.soup.get_text()
         self.first_p = self.soup.find('p')
         self.first_p_text = None if not self.first_p else self.first_p.text
-        self.description_text = self.first_p_text if not self.description_meta else self.description_meta.content
+        self.description_text = self.first_p_text if not self.description_meta else self.description_meta.get("content")
 
     def get_urls(self):
         urls = []
