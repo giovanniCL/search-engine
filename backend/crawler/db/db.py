@@ -18,13 +18,8 @@ class Page(Base):
     id = mapped_column(Integer(), primary_key=True, autoincrement=True)
     url = mapped_column(String(100), unique=True)
     title = mapped_column(String(280))
+    h1 = mapped_column(String(280))
     description = mapped_column(String(280))
-
-class WordXPage(Base):
-    __tablename__ = "Index"
-    word = mapped_column(String(100), primary_key=True)
-    page = mapped_column(Integer(), primary_key=True)
-    score = mapped_column(Integer())
 
 engine = create_engine(connection_string, echo=True)
 
