@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 class SqlAlchemyPandasClient:
     def __init__(self, indexer_engine, crawler_engine):
@@ -23,10 +24,11 @@ class SqlAlchemyPandasClient:
         page_ids_str = str(page_ids[0])
         for id in page_ids:
             page_ids_str += f", {id}"
-        query = f"SELECT title, h1, description, url FROM page WHERE id IN ({page_ids_str})"
+        query = f"SELECT id, title, h1, description, url FROM page WHERE id IN ({page_ids_str})"
         result_df = pd.read_sql_query(query, self.crawler_engine)
         results = []
-        for title, h1, description, url in zip(result_df["title"].values, result_df["h1"].values, result_df["description"].values, result_df["url"].values):
-            results.append({"title": title, "h1": h1, "description": description, "url": url})
-
+        for id, title, h1, description, url in zip(result_df["id"].values, result_df["title"].values, result_df["h1"].values, result_df["description"].values, result_df["url"].values):
+            results.append({"id": id, "title": title, "h1": h1, "description": description, "url": url})
+        results.sort(key=lambda x: np.where(page_ids == x["id"])[0])
+        for result in results: result.pop("id")
         return results
