@@ -12,5 +12,7 @@ db_client = SqlAlchemyClient(engine, Page)
 indexer_client = IndexerClient(INDEXER_URL)
 
 crawler = WebCrawler(seed_pages, Scraper, db_client, indexer_client, n_iters=1000)
-crawler.crawl()
+
+if __name__ == "__main__":
+    crawler.crawl()
 
